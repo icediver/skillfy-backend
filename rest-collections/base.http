@@ -1,0 +1,25 @@
+###--Auth
+POST {{URL}}/auth/login
+Content-Type: application/json
+
+< {{PAYLOAD}}
+
+###
+POST {{URL}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "ilon-mask@x.com",
+  "password": "123456"
+}
+
+###--USERS
+GET {{URL}}/users
+Accept: application/json
+
+###
+GET {{URL}}/users/profile
+Accept: application/json
+Authorization: Bearer {{TOKEN}}
+
+###

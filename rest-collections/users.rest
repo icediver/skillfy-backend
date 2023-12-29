@@ -1,0 +1,32 @@
+// Global definitions of the queries
+# Global section
+http://localhost:4200/api 
+// Specify optional headers.
+
+# curl options
+--silent
+# include response headers
+--include
+# ignore SSL when working with localhost
+#--insecure
+# to read a header(s) from file. File format should be like:
+# Header-Name: Header-Value
+# e.g. Authorization: YOUR_AUTH_TOKEN_HERE
+#Authorization: Bearer Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNjk4OTEzNDQyLCJleHAiOjE2OTg5MTcwNDJ9.3cTzTwNO_FTeottblOIZBqvgclZU84grZi5OV44rjB4
+# -H @/path/to/file.txt
+-H @headers.txt
+# headers
+# accept: application/json;
+# connection: keep-alive
+# content-type: application/json; charset=utf-8
+# user-agent: vrc
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNjk4OTEzNDQyLCJleHAiOjE2OTg5MTcwNDJ9.3cTzTwNO_FTeottblOIZBqvgclZU84grZi5OV44rjB4
+# query
+--
+--
+GET /users/profile
+--
+GET /users
+--
+# body 
+# {}
