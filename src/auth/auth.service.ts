@@ -10,6 +10,8 @@ import { verify } from 'argon2';
 import { Response } from 'express';
 import { AuthDto } from './dto/auth.dto';
 import { UserService } from 'src/user/user.service';
+import { MailService } from 'src/mail/mail.service';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -19,11 +21,14 @@ export class AuthService {
   constructor(
     private jwt: JwtService,
     private userService: UserService,
+    private mailService: MailService,
   ) {}
 
   async login(dto: AuthDto) {
     const { password, ...user } = await this.validateUser(dto);
     const tokens = await this.issueTokens(user.id);
+
+    await this.sendConfirmation(user);
 
     return {
       user,
@@ -111,5 +116,55 @@ export class AuthService {
       // lax if production
       sameSite: 'none',
     });
+  }
+
+  async sendConfirmation(user: Omit<User, 'password'>) {
+    const data = { user };
+    const confirmToken = this.jwt.sign(data, {
+      expiresIn: '1h',
+    });
+    await this.mailService.sendMail(
+      {
+        to: user.email,
+        subject: 'Confirmation Email',
+        url: `http://localhost:4200/api/auth/confirm?token=${confirmToken}`,
+        name: user.name ? user.name : user.email,
+      },
+      'welcome',
+    );
+  }
+
+  async confirmEmail(token: string) {
+    const { user } = await this.jwt.verifyAsync(token);
+    if (!user) throw new UnauthorizedException('Invalid token');
+    const tokens = await this.issueTokens(user.id);
+
+    return { user, ...tokens };
+  }
+
+  async sendResetPasswordLink(email: string) {
+    const data = await this.userService.getByEmail(email);
+    if (!data) throw new NotFoundException('User not found');
+
+    const { password, ...user } = data;
+
+    const confirmToken = this.jwt.sign(user, {
+      expiresIn: '1h',
+    });
+
+    await this.mailService.sendMail(
+      {
+        to: user.email,
+        subject: 'Reset Password',
+        url: `http://localhost:3000/reset-password/${confirmToken}`,
+        name: user.name ? user.name : user.email,
+      },
+      'reset-password',
+    );
+  }
+
+  async resetPassword(token: string) {
+    const result = await this.jwt.verifyAsync(token);
+    return result;
   }
 }

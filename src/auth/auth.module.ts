@@ -7,6 +7,8 @@ import { UserService } from 'src/user/user.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { getJwtConfig } from 'src/config/jwt.config';
+import { MailService } from 'src/mail/mail.service';
+import configuration from 'src/config/configuration';
 
 @Module({
   controllers: [AuthController],
@@ -16,13 +18,17 @@ import { getJwtConfig } from 'src/config/jwt.config';
     JwtStrategy,
     UserService,
     PrismaService,
+    MailService,
   ],
   imports: [
-    ConfigModule,
+    // ConfigModule,
     JwtModule.registerAsync({
-      imports: [ConfigModule],
+      // imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: getJwtConfig,
+    }),
+    ConfigModule.forRoot({
+      load: [configuration],
     }),
   ],
 })

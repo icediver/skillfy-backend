@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   Post,
+  Query,
+  Redirect,
   Req,
   Res,
   UnauthorizedException,
@@ -12,7 +15,7 @@ import {
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { UserService } from 'src/user/user.service';
-import { Request, Response } from 'express';
+import { Request, Response, response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -71,5 +74,28 @@ export class AuthController {
   async logout(@Res({ passthrough: true }) res: Response) {
     this.authService.removeRefreshTokenFromResponse(res);
     return true;
+  }
+
+  @HttpCode(200)
+  @Get('confirm')
+  @Redirect('http://localhost:3000/auth', 302)
+  async confirmEmail(@Query('token') token: string) {
+    const response = await this.authService.confirmEmail(token);
+    if (!response.user) throw new UnauthorizedException('Invalid token');
+
+    // this.authService.addRefreshTokenToResponse(res, refreshToken);
+    if (response.user) return response;
+  }
+
+  @HttpCode(200)
+  @Get('reset-password-link')
+  async sendResetPasswordLink(@Query('email') email: string) {
+    return this.authService.sendResetPasswordLink(email);
+  }
+
+  @HttpCode(200)
+  @Get('reset-password')
+  async resetPassword(@Query('token') token: string) {
+    return this.authService.resetPassword(token);
   }
 }
