@@ -127,7 +127,7 @@ export class AuthService {
       {
         to: user.email,
         subject: 'Confirmation Email',
-        url: `http://localhost:4200/api/auth/confirm?token=${confirmToken}`,
+        url: `http://localhost:3000/auth/confirm-email/${confirmToken}`,
         name: user.name ? user.name : user.email,
       },
       'welcome',

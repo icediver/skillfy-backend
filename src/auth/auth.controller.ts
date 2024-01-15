@@ -77,14 +77,24 @@ export class AuthController {
   }
 
   @HttpCode(200)
-  @Get('confirm')
-  @Redirect('http://localhost:3000/auth', 302)
-  async confirmEmail(@Query('token') token: string) {
-    const response = await this.authService.confirmEmail(token);
-    if (!response.user) throw new UnauthorizedException('Invalid token');
+  @Post('confirm')
+  async confirmEmail(
+    @Query('token') token: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    // const response = await this.authService.confirmEmail(token);
+    // if (!response.user) throw new UnauthorizedException('Invalid token');
 
+    const data = await this.authService.confirmEmail(token);
+
+    if (!data.user) throw new UnauthorizedException('Invalid token');
+
+    const { refreshToken, ...response } = data;
+
+    this.authService.addRefreshTokenToResponse(res, refreshToken);
+
+    return response;
     // this.authService.addRefreshTokenToResponse(res, refreshToken);
-    if (response.user) return response;
   }
 
   @HttpCode(200)
