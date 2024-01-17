@@ -15,4 +15,8 @@ model User {
   email String @unique
   name  String
   password String
+
+  isAdmin Boolean @default(false) @map("is_admin")
+  isEmailVerified Boolean @default(false) @map("is_email_verified")
+  avatarPath String @default("") @map("avatar_path")
 }

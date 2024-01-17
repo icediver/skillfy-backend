@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { hash } from 'argon2';
 import { AuthDto } from 'src/auth/dto/auth.dto';
 import { PrismaService } from 'src/prisma.service';
+import { UserDto } from './dto/user.dto';
+import { returnUserObject } from './dto/return-user.object';
 
 @Injectable()
 export class UserService {
@@ -23,6 +25,7 @@ export class UserService {
       where: {
         id,
       },
+      select: returnUserObject,
     });
   }
 
@@ -43,6 +46,30 @@ export class UserService {
 
     return this.prisma.user.create({
       data: user,
+    });
+  }
+  async updateProfile(id: number, dto: UserDto) {
+    const isSameUser = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (isSameUser && id !== isSameUser.id)
+      throw new BadRequestException('Email already in use');
+
+    const user = await this.getById(id);
+
+    return this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        email: dto.email,
+        name: dto.name,
+        avatarPath: dto.avatarPath,
+        password: dto.password ? await hash(dto.password) : user.password,
+        isAdmin: dto.isAdmin,
+        isEmailVerified: dto.isEmailVerified,
+      },
     });
   }
 }

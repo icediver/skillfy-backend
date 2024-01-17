@@ -12,6 +12,7 @@ import { AuthDto } from './dto/auth.dto';
 import { UserService } from 'src/user/user.service';
 import { MailService } from 'src/mail/mail.service';
 import { User } from '@prisma/client';
+import { UserDto } from 'src/user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -135,11 +136,20 @@ export class AuthService {
   }
 
   async confirmEmail(token: string) {
-    const { user } = await this.jwt.verifyAsync(token);
-    if (!user) throw new UnauthorizedException('Invalid token');
-    const tokens = await this.issueTokens(user.id);
+    try {
+      const { user } = await this.jwt.verifyAsync(token);
+      if (!user) throw new UnauthorizedException('Invalid token');
 
-    return { user, ...tokens };
+      const dto: UserDto = { isEmailVerified: true };
+
+      const profile = await this.userService.updateProfile(user.id, dto);
+
+      const tokens = await this.issueTokens(user.id);
+
+      return { user, ...tokens };
+    } catch (e) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 
   async sendResetPasswordLink(email: string) {
