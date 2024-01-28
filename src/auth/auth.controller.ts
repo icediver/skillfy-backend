@@ -5,7 +5,7 @@ import {
   HttpCode,
   Post,
   Query,
-  Redirect,
+  Put,
   Req,
   Res,
   UnauthorizedException,
@@ -29,11 +29,12 @@ export class AuthController {
   @Post('register')
   async register(
     @Body() dto: AuthDto,
-    @Res({ passthrough: true }) res: Response,
+    // @Res({ passthrough: true }) res: Response,
   ) {
-    const { refreshToken, ...response } = await this.authService.register(dto);
+    const response = await this.authService.register(dto);
+    // const response = await this.authService.register(dto);
 
-    this.authService.addRefreshTokenToResponse(res, refreshToken);
+    // this.authService.addRefreshTokenToResponse(res, refreshToken);
     return response;
   }
 
@@ -42,7 +43,9 @@ export class AuthController {
   @Post('login')
   async login(@Body() dto: AuthDto, @Res({ passthrough: true }) res: Response) {
     const { refreshToken, ...response } = await this.authService.login(dto);
+
     this.authService.addRefreshTokenToResponse(res, refreshToken);
+
     return response;
   }
 
@@ -82,30 +85,15 @@ export class AuthController {
     @Query('token') token: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    // const response = await this.authService.confirmEmail(token);
-    // if (!response.user) throw new UnauthorizedException('Invalid token');
-
-    const data = await this.authService.confirmEmail(token);
+    const data = await this.authService.confirm(token);
 
     if (!data.user) throw new UnauthorizedException('Invalid token');
-
-    const { refreshToken, ...response } = data;
-
-    this.authService.addRefreshTokenToResponse(res, refreshToken);
-
-    return response;
-    // this.authService.addRefreshTokenToResponse(res, refreshToken);
+    return data;
   }
 
   @HttpCode(200)
   @Get('reset-password-link')
   async sendResetPasswordLink(@Query('email') email: string) {
     return this.authService.sendResetPasswordLink(email);
-  }
-
-  @HttpCode(200)
-  @Get('reset-password')
-  async resetPassword(@Query('token') token: string) {
-    return this.authService.resetPassword(token);
   }
 }

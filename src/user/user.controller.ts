@@ -17,9 +17,11 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('profile')
+  @HttpCode(200)
   @Auth()
   async getProfile(@CurrentUser('id') id: number) {
-    return this.userService.getById(id);
+    const { password, ...user } = await this.userService.getById(id);
+    return user;
   }
 
   @UsePipes(new ValidationPipe())

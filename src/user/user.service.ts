@@ -25,7 +25,6 @@ export class UserService {
       where: {
         id,
       },
-      select: returnUserObject,
     });
   }
 

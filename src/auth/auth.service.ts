@@ -27,9 +27,8 @@ export class AuthService {
 
   async login(dto: AuthDto) {
     const { password, ...user } = await this.validateUser(dto);
-    const tokens = await this.issueTokens(user.id);
 
-    await this.sendConfirmation(user);
+    const tokens = await this.issueTokens(user.id);
 
     return {
       user,
@@ -44,12 +43,16 @@ export class AuthService {
 
     const { password, ...user } = await this.userService.create(dto);
 
-    const tokens = await this.issueTokens(user.id);
+    await this.sendConfirmation(user);
+    // const { password, ...user } = await this.userService.create(dto);
 
-    return {
-      user,
-      ...tokens,
-    };
+    // const tokens = await this.issueTokens(user.id);
+
+    // return {
+    //   user,
+    //   ...tokens,
+    // };
+    return 'Please confirmation Email';
   }
 
   async getNewTokens(refreshToken: string) {
@@ -122,27 +125,32 @@ export class AuthService {
   async sendConfirmation(user: Omit<User, 'password'>) {
     const data = { user };
     const confirmToken = this.jwt.sign(data, {
-      expiresIn: '1h',
+      expiresIn: '14d',
     });
     await this.mailService.sendMail(
       {
         to: user.email,
         subject: 'Confirmation Email',
-        url: `http://localhost:3000/auth/confirm-email/${confirmToken}`,
+        // url: `http://localhost:3000/auth/confirm-email/${confirmToken}`,
+        url: `${process.env.FRONTEND_URL}/auth/confirm-email/${confirmToken}`,
         name: user.name ? user.name : user.email,
       },
-      'welcome',
+      'confirm-email',
     );
+
+    return 'Check you email';
   }
 
-  async confirmEmail(token: string) {
+  async confirm(token: string) {
     try {
       const { user } = await this.jwt.verifyAsync(token);
+
       if (!user) throw new UnauthorizedException('Invalid token');
+      if (!user.isEmailVerified) {
+        const dto: UserDto = { isEmailVerified: true };
 
-      const dto: UserDto = { isEmailVerified: true };
-
-      const profile = await this.userService.updateProfile(user.id, dto);
+        await this.userService.updateProfile(user.id, dto);
+      }
 
       const tokens = await this.issueTokens(user.id);
 
@@ -153,12 +161,13 @@ export class AuthService {
   }
 
   async sendResetPasswordLink(email: string) {
-    const data = await this.userService.getByEmail(email);
-    if (!data) throw new NotFoundException('User not found');
+    const { password, ...user } = await this.userService.getByEmail(email);
 
-    const { password, ...user } = data;
+    if (!user) throw new NotFoundException('User not found');
 
-    const confirmToken = this.jwt.sign(user, {
+    const data = { user };
+
+    const resetToken = this.jwt.sign(data, {
       expiresIn: '1h',
     });
 
@@ -166,15 +175,12 @@ export class AuthService {
       {
         to: user.email,
         subject: 'Reset Password',
-        url: `http://localhost:3000/reset-password/${confirmToken}`,
+        url: `${process.env.FRONTEND_URL}/auth/reset-password/${resetToken}`,
         name: user.name ? user.name : user.email,
       },
       'reset-password',
     );
-  }
 
-  async resetPassword(token: string) {
-    const result = await this.jwt.verifyAsync(token);
-    return result;
+    return 'Check your email';
   }
 }
