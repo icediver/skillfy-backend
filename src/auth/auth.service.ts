@@ -43,16 +43,12 @@ export class AuthService {
 
     const { password, ...user } = await this.userService.create(dto);
 
-    await this.sendConfirmation(user);
-    // const { password, ...user } = await this.userService.create(dto);
+    const tokens = await this.issueTokens(user.id);
 
-    // const tokens = await this.issueTokens(user.id);
-
-    // return {
-    //   user,
-    //   ...tokens,
-    // };
-    return 'Please confirmation Email';
+    return {
+      user,
+      ...tokens,
+    };
   }
 
   async getNewTokens(refreshToken: string) {

@@ -39,7 +39,7 @@ export class UserService {
   async create(dto: AuthDto) {
     const user = {
       email: dto.email,
-      name: dto.email,
+      name: dto.name ? dto.name : dto.email,
       password: await hash(dto.password),
     };
 

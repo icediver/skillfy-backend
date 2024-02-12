@@ -16,7 +16,10 @@ import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { UserService } from 'src/user/user.service';
 import { Request, Response, response } from 'express';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthEntity } from './entities/auth.entity';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -24,20 +27,36 @@ export class AuthController {
     private readonly userService: UserService,
   ) {}
 
+  //--------------------Create------------------------//
+
+  @ApiOperation({ summary: 'Register new user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Success',
+    type: AuthEntity,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   @Post('register')
   async register(
     @Body() dto: AuthDto,
-    // @Res({ passthrough: true }) res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    const response = await this.authService.register(dto);
-    // const response = await this.authService.register(dto);
+    const { refreshToken, ...response } = await this.authService.register(dto);
 
-    // this.authService.addRefreshTokenToResponse(res, refreshToken);
+    this.authService.addRefreshTokenToResponse(res, refreshToken);
     return response;
   }
 
+  //--------------------Login------------------------//
+
+  @ApiOperation({ summary: 'Login user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Success',
+    type: AuthEntity,
+  })
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   @Post('login')
@@ -49,6 +68,14 @@ export class AuthController {
     return response;
   }
 
+  //--------------------get new tokens------------------------//
+
+  @ApiOperation({ summary: 'Get new access and refresh tokens' })
+  @ApiResponse({
+    status: 200,
+    description: 'Success',
+    type: AuthEntity,
+  })
   @HttpCode(200)
   @Post('login/access-token')
   async getNewTokens(

@@ -10,11 +10,20 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { CurrentUser } from 'src/auth/decorators/user.decorator';
 import { MediaService } from './media.service';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { MediaResponse } from './media.interface';
 
+@ApiTags('Media')
 @Controller('media')
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
+  @ApiOperation({ summary: 'Upload media' })
+  @ApiResponse({
+    status: 200,
+    description: 'Success',
+    type: MediaResponse,
+  })
   @HttpCode(200)
   @Post()
   @Auth()

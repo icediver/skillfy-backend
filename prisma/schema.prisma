@@ -1,5 +1,5 @@
 // This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+//learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -18,5 +18,118 @@ model User {
 
   isAdmin Boolean @default(false) @map("is_admin")
   isEmailVerified Boolean @default(false) @map("is_email_verified")
-  avatarPath String @default("") @map("avatar_path")
+  avatarPath String @default("/uploads/avatars/unknown_user.jpg") @map("avatar_path")
+
+  orders    Order[]
+  reviews   Review[]
+  favorites Course[]  @relation("User favorites")
+  courses   Course[]  @relation("Autor of course")
+}
+
+model Course {
+  id    Int @id @default(autoincrement())
+    createdAt DateTime @default(now()) @map("created_at")
+    updateAt  DateTime @updatedAt @map("updated_at")
+
+    title       String @unique
+    slug        String @unique
+    description String
+    price       Int
+    images      String[]
+    lessons     String[]
+    views       Int     @default(0)
+
+    orderItems  OrderItem[]
+    reviews     Review[]
+
+    videos      Video[]
+
+    category Category? @relation(fields: [categoryId], references: [id])
+    categoryId  Int? @map("category_id")
+
+    users      User[]  @relation("User favorites")
+
+    teacher    User?   @relation("Autor of course",fields: [teacherId], references: [id])
+    teacherId  Int?   @map("teacher_id")
+}
+model Category {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now()) @map("created_at")
+    updateAt  DateTime @updatedAt @map("updated_at")
+
+    name String @unique
+    slug String @unique
+    description String
+    colors       String[]
+    icon String
+
+    courses    Course[]
+}
+
+model Review {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now()) @map("created_at")
+    updateAt  DateTime @updatedAt @map("updated_at")
+
+    rating      Int
+    text        String
+
+    user        User @relation(fields:[userId], references: [id])
+    userId      Int @map("user_id")
+
+    course     Course @relation(fields: [courseId], references: [id])
+    courseId   Int @map("course_id")
+}
+
+model Order {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now()) @map("created_at")
+    updateAt  DateTime @updatedAt @map("updated_at")
+
+    status      EnumOrderStatus @default(PENDING)
+    items       OrderItem[]
+    total       Int
+
+    user        User @relation(fields:[userId], references: [id])
+    userId      Int @map("user_id")
+}
+
+model OrderItem {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now()) @map("created_at")
+    updateAt  DateTime @updatedAt @map("updated_at")
+
+    quantity        Int
+    price           Int
+
+    order   Order? @relation(fields: [orderId], references: [id])
+    orderId     Int? @map("order_id")
+
+    course     Course? @relation(fields: [courseId], references: [id])
+    courseId   Int     @map("course_id")
+
+
+    @@map("Order_item")
+}
+
+model Video {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now()) @map("created_at")
+    updateAt  DateTime @updatedAt @map("updated_at")
+
+    source    String
+    chapter   String
+    slug      String  @unique
+    title     String
+    overview  String
+
+    course    Course? @relation(fields: [courseId], references: [id])
+    courseId  Int?    @map("course_id")
+}
+
+enum  EnumOrderStatus {
+    PENDING
+    PAYED
+    SHIPPED
+    DELIVERED
 }

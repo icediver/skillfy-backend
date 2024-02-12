@@ -9,6 +9,7 @@ POST {{URL}}/auth/register
 Content-Type: application/json
 
 {
+  "name": "icediver",
   "email": "ageev75@gmail.com",
   "password": "123456"
 }

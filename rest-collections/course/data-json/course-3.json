@@ -1,0 +1,14 @@
+{
+  "title": "Statistics Data Science and Business Analysis",
+
+  "description": "Statistics Data Science and Business Analysis",
+
+  "price": 99,
+
+  "images": ["/uploads/images/choose.jpg"],
+
+  "lessons": ["1.mp4", "2.mp4"],
+  "teacherId": 1,
+
+  "categoryId": 2
+}
