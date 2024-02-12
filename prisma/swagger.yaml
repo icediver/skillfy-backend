@@ -1,0 +1,798 @@
+openapi: 3.0.0
+paths:
+  /api/auth/register:
+    post:
+      operationId: AuthController_register
+      summary: Register new user
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthDto'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthEntity'
+        '400':
+          description: Bad request
+      tags:
+        - Auth
+  /api/auth/login:
+    post:
+      operationId: AuthController_login
+      summary: Login user
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthDto'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthEntity'
+      tags:
+        - Auth
+  /api/auth/login/access-token:
+    post:
+      operationId: AuthController_getNewTokens
+      summary: Get new access and refresh tokens
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthEntity'
+      tags:
+        - Auth
+  /api/auth/logout:
+    post:
+      operationId: AuthController_logout
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Auth
+  /api/auth/confirm:
+    post:
+      operationId: AuthController_confirmEmail
+      parameters:
+        - name: token
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Auth
+  /api/auth/reset-password-link:
+    get:
+      operationId: AuthController_sendResetPasswordLink
+      parameters:
+        - name: email
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Auth
+  /api/users/profile:
+    get:
+      operationId: UserController_getProfile
+      summary: Get profile
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEntity'
+      tags:
+        - Users
+    put:
+      operationId: UserController_updateProfile
+      summary: Update profile
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDto'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEntity'
+      tags:
+        - Users
+  /api/media:
+    post:
+      operationId: MediaController_uploadsMediaFile
+      summary: Upload media
+      parameters:
+        - name: folder
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaResponse'
+      tags:
+        - Media
+  /api/categories:
+    get:
+      operationId: CategoryController_getAll
+      summary: Get all categories
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryEntity'
+      tags:
+        - Categories
+    post:
+      operationId: CategoryController_create
+      summary: Create category
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryEntity'
+      tags:
+        - Categories
+  /api/categories/by-slug/{slug}:
+    get:
+      operationId: CategoryController_getBySlug
+      summary: Get category by slug
+      parameters:
+        - name: slug
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryEntity'
+      tags:
+        - Categories
+  /api/categories/{id}:
+    get:
+      operationId: CategoryController_getById
+      summary: Get category by slug
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryEntity'
+      tags:
+        - Categories
+    put:
+      operationId: CategoryController_update
+      summary: Update category
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCategoryDto'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryEntity'
+      tags:
+        - Categories
+    delete:
+      operationId: CategoryController_delete
+      summary: Delete category
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+      tags:
+        - Categories
+  /api/courses:
+    get:
+      operationId: CourseController_getAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Courses
+    post:
+      operationId: CourseController_createCourse
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Courses
+  /api/courses/{id}:
+    get:
+      operationId: CourseController_getCourse
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Courses
+    put:
+      operationId: CourseController_updateCourse
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Courses
+    delete:
+      operationId: CourseController_deleteCourse
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Courses
+  /api/courses/similar/{id}:
+    get:
+      operationId: CourseController_getSimilar
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Courses
+  /api/courses/by-slug/{slug}:
+    get:
+      operationId: CourseController_getCourseBySlug
+      parameters:
+        - name: slug
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Courses
+  /api/courses/by-category/{categorySlug}:
+    get:
+      operationId: CourseController_getCourseByCategory
+      parameters:
+        - name: categorySlug
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Courses
+  /api/courses/update-views/{id}:
+    patch:
+      operationId: CourseController_updateViews
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Courses
+  /api/videos:
+    post:
+      operationId: VideoController_create
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Videos
+    get:
+      operationId: VideoController_findAll
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Videos
+  /api/videos/{id}:
+    get:
+      operationId: VideoController_findOne
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Videos
+    put:
+      operationId: VideoController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateVideoDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Videos
+    delete:
+      operationId: VideoController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Videos
+  /api/videos/course/{slug}:
+    get:
+      operationId: VideoController_findByCourse
+      parameters:
+        - name: slug
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Videos
+  /api/videos/by-slug/{slug}:
+    get:
+      operationId: VideoController_findBySlug
+      parameters:
+        - name: slug
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Videos
+  /api/reviews:
+    get:
+      operationId: ReviewController_getAll
+      summary: Get all reviews
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReviewEntity'
+      tags:
+        - Reviews
+  /api/reviews/by-course/{courseId}:
+    get:
+      operationId: ReviewController_getByApartment
+      summary: Get reviews by course
+      parameters:
+        - name: courseId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewEntity'
+      tags:
+        - Reviews
+  /api/reviews/leave/{courseId}:
+    post:
+      operationId: ReviewController_leaveReview
+      summary: Create review
+      parameters:
+        - name: courseId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewDto'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewDto'
+      tags:
+        - Reviews
+info:
+  title: Skillfy API
+  description: The Skillfy API description
+  version: '1.0'
+  contact: {}
+tags:
+  - name: skillfy
+    description: ''
+servers: []
+components:
+  schemas:
+    AuthDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: User name
+        email:
+          type: string
+          description: User email
+          nullable: false
+        password:
+          type: string
+          description: User password
+          nullable: false
+      required:
+        - email
+        - password
+    AuthEntity:
+      type: object
+      properties:
+        user:
+          type: object
+          description: User
+          example:
+            id: 1
+            name: John Doe
+            email: email@email.com
+            isAdmin: false
+            isEmailVerified: true
+            avatarPath: http://example.com/avatarPath
+        refreshToken:
+          type: string
+          example: refreshToken
+          description: Refresh token
+        accessToken:
+          type: string
+          example: accessToken
+          description: Access token
+      required:
+        - user
+        - refreshToken
+        - accessToken
+    UserEntity:
+      type: object
+      properties:
+        id:
+          type: number
+          description: User id
+          example: 1
+        createdAt:
+          format: date-time
+          type: string
+          description: User creation date
+          example: 2024-02-12T08:42:56.152Z
+        updateAt:
+          format: date-time
+          type: string
+          description: User update date
+          example: 2024-02-12T08:42:56.152Z
+        email:
+          type: string
+          description: User email
+          example: p6s7H@example.com
+        password:
+          type: string
+          description: User password
+          example: '123456'
+        name:
+          type: string
+          description: User name
+          example: John Doe
+        avatarPath:
+          type: string
+          description: User avatar path
+          example: avatar.png
+        isAdmin:
+          type: boolean
+          description: Is User admin?
+          example: 'true'
+        isEmailVerified:
+          type: boolean
+          description: Is User email verified?
+          example: 'true'
+      required:
+        - id
+        - createdAt
+        - updateAt
+        - email
+        - password
+        - name
+        - avatarPath
+        - isAdmin
+        - isEmailVerified
+    UserDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: p6s7H@example.com
+          description: User email
+        password:
+          type: string
+          example: '123456'
+          description: User password
+        name:
+          type: string
+          example: John
+          description: User name
+        avatarPath:
+          type: string
+          example: avatar.png
+          description: User avatar path
+        isAdmin:
+          type: boolean
+          example: 'true'
+          description: Is User admin?
+        isEmailVerified:
+          type: boolean
+          example: 'true'
+          description: Is User email verified?
+    MediaResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          example: https://example.com/image.png
+        name:
+          type: string
+          example: image.png
+      required:
+        - url
+        - name
+    CategoryEntity:
+      type: object
+      properties:
+        id:
+          type: number
+        createdAt:
+          format: date-time
+          type: string
+        updateAt:
+          format: date-time
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        colors:
+          type: array
+          items:
+            type: string
+        icon:
+          type: string
+      required:
+        - id
+        - createdAt
+        - updateAt
+        - name
+        - slug
+        - description
+        - colors
+        - icon
+    UpdateCategoryDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Category name
+          nullable: true
+        description:
+          type: string
+          description: Category description
+          nullable: true
+        icon:
+          type: string
+          description: Category icon
+          nullable: true
+        colors:
+          description: Category colors
+          nullable: true
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - description
+        - icon
+        - colors
+    CourseDto:
+      type: object
+      properties: {}
+    UpdateVideoDto:
+      type: object
+      properties: {}
+    ReviewEntity:
+      type: object
+      properties:
+        createdAt:
+          format: date-time
+          type: string
+          example: '2022-01-01T00:00:00.000Z'
+          description: Date of creation
+        updateAt:
+          format: date-time
+          type: string
+          example: '2022-01-01T00:00:00.000Z'
+          description: Date of update
+        text:
+          type: string
+          example: text
+          description: Review text
+        id:
+          type: number
+          example: 1
+          description: Review rating
+        title:
+          type: string
+          example: title
+          description: Review title
+        description:
+          type: string
+          example: description
+          description: Review description
+        rating:
+          type: number
+          example: 5
+          description: Review rating
+        userId:
+          type: number
+          example: 1
+          description: User id
+        courseId:
+          type: number
+          example: 1
+          description: Course id
+      required:
+        - createdAt
+        - updateAt
+        - text
+        - id
+        - title
+        - description
+        - rating
+        - userId
+        - courseId
+    ReviewDto:
+      type: object
+      properties:
+        rating:
+          type: number
+          example: 5
+          description: Review rating
+        text:
+          type: string
+          example: text
+          description: Review text
+      required:
+        - rating
+        - text
