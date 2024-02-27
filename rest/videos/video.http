@@ -1,0 +1,35 @@
+###-Create
+POST {{URL}}
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+###--Get All
+GET {{URL}}
+Accept: application/json
+Authorization: Bearer {{TOKEN}}
+
+###--Get By Course
+GET {{URL}}/course/learn-adobe-xd-prototyping
+Accept: application/json
+Authorization: Bearer {{TOKEN}}
+
+###--Get By Id
+GET {{URL}}/1
+Accept: application/json
+
+###--Get By Slug
+GET {{URL}}/by-slug/learn-adobe-xd-prototyping
+Accept: application/json
+
+
+###---Update
+PUT {{URL}}/4
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+< {{PAYLOAD}}
+
+###---Delete
+DELETE {{URL}}/1
+Accept: application/json
+Authorization: Bearer {{TOKEN}}

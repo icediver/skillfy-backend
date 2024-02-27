@@ -24,10 +24,12 @@ model User {
   reviews   Review[]
   favorites Course[]  @relation("User favorites")
   courses   Course[]  @relation("Autor of course")
+
+  purchases Course[]  @relation("User purchases")
 }
 
 model Course {
-  id    Int @id @default(autoincrement())
+    id    Int @id @default(autoincrement())
     createdAt DateTime @default(now()) @map("created_at")
     updateAt  DateTime @updatedAt @map("updated_at")
 
@@ -35,6 +37,7 @@ model Course {
     slug        String @unique
     description String
     price       Int
+    sale        Int    @default(0)
     images      String[]
     lessons     String[]
     views       Int     @default(0)
@@ -48,6 +51,7 @@ model Course {
     categoryId  Int? @map("category_id")
 
     users      User[]  @relation("User favorites")
+    buyers     User[]  @relation("User purchases")
 
     teacher    User?   @relation("Autor of course",fields: [teacherId], references: [id])
     teacherId  Int?   @map("teacher_id")

@@ -1,0 +1,65 @@
+###-- Login
+POST {{URL}}/auth/login
+Content-Type: application/json
+
+< {{PAYLOAD}}
+
+###--Register
+
+POST {{URL}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "icediver",
+  "email": "ageev75@gmail.com",
+  "password": "123456"
+}
+
+### --Get Profile
+
+GET {{URL}}/users/profile
+Accept: application/json
+Authorization: Bearer {{TOKEN}}
+
+###
+
+GET {{URL}}/mail
+# Accept: application/json
+
+
+### --Send Reset Password Link
+
+GET {{URL}}/auth/reset-password-link?email=ageev75@gmail.com
+Content-Type: application/json
+
+###
+
+### --Confirm
+
+GET {{URL}}/auth/confirm?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoyLCJlbWFpbCI6ImFnZWV2NzVAZ21haWwuY29tIiwibmFtZSI6ImFnZWV2NzVAZ21haWwuY29tIn0sImlhdCI6MTcwNDQ0MDI5NiwiZXhwIjoxNzA0NDQzODk2fQ.K-wh4GTN0gqOlf6n8RyXM8nktzsuAVNrVAiTW0UUsgM
+Content-Type: application/json
+
+### --Update Profile
+
+PUT {{URL}}/users/profile
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+### -- Toggle Favorite
+
+PATCH {{URL}}/users/favorites/2
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### -- Buy Course
+
+PATCH {{URL}}/users/buy-course/2
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+###

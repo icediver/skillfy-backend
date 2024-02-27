@@ -6,11 +6,13 @@ import { CategoryModule } from 'src/category/category.module';
 import { PaginationService } from 'src/pagination/pagination.service';
 import { PrismaService } from 'src/prisma.service';
 import { UserModule } from 'src/user/user.module';
+import { FiltersService } from 'src/filters/filters.service';
+import { ReviewModule } from 'src/review/review.module';
 
 @Module({
   controllers: [CourseController],
-  imports: [PaginationModule, CategoryModule, UserModule],
-  providers: [CourseService, PrismaService, PaginationService],
+  imports: [PaginationModule, CategoryModule, UserModule, ReviewModule],
+  providers: [CourseService, PrismaService, PaginationService, FiltersService],
   exports: [CourseService],
 })
 export class CourseModule {}

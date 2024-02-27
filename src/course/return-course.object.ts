@@ -11,6 +11,7 @@ export const courseReturnObject: Prisma.CourseSelect = {
   price: true,
   createdAt: true,
   slug: true,
+  sale: true,
   // category: { select: returnCategoryObject },
   category: { select: { name: true } },
   videos: { select: videoReturnObject, orderBy: { title: 'asc' } },

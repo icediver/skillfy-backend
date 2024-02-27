@@ -12,6 +12,8 @@ export class ReviewService {
     private paginationService: PaginationService,
   ) {}
 
+  //--------------------Read--------------------------//
+
   async getAll(dto: PaginationDto) {
     const { perPage, skip } = this.paginationService.getPagination(dto);
 
@@ -54,6 +56,22 @@ export class ReviewService {
       }),
     };
   }
+
+  async getRatingByCourseSlug(slug: string) {
+    const {
+      _avg: { rating },
+    } = await this.prisma.review.aggregate({
+      where: {
+        course: { slug },
+      },
+      _avg: {
+        rating: true,
+      },
+    });
+
+    return rating;
+  }
+  //--------------------Create------------------------//
 
   async create(userId: number, dto: ReviewDto, courseId: number) {
     const review = await this.prisma.review.create({

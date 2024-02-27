@@ -4,27 +4,33 @@ import { PaginationService } from 'src/pagination/pagination.service';
 import { PrismaService } from 'src/prisma.service';
 import { generateSlug } from 'src/utils/generate.slug';
 import { CourseDto } from './dto/course.dto';
-import { Prisma } from '@prisma/client';
-import { EnumCourseSort, GetAllCoursesDto } from './dto/get-all.courses.dto';
+import { GetAllCoursesDto } from './dto/get-all.courses.dto';
 import {
   courseReturnObject,
   courseReturnObjectFullest,
 } from './return-course.object';
-import { convertToNumber } from 'src/utils/convert-to-number';
 import { UserService } from 'src/user/user.service';
-import { async } from 'rxjs';
+import { FiltersService } from 'src/filters/filters.service';
+import { ReviewService } from 'src/review/review.service';
 
 @Injectable()
 export class CourseService {
   constructor(
+    private userService: UserService,
     private prisma: PrismaService,
     private paginationService: PaginationService,
     private categoryService: CategoryService,
-    private userService: UserService,
+    private filtersService: FiltersService,
+    private reviewService: ReviewService,
   ) {}
 
   //--------------------Read--------------------------//
 
+  /**
+   *GET course by Id.
+   *
+   * @param {number} id
+   */
   async byId(id: number) {
     const course = await this.prisma.course.findUnique({
       where: {
@@ -37,26 +43,36 @@ export class CourseService {
     return course;
   }
 
+  /**
+   * Get course by Slug.
+   *
+   * @param {string} slug
+   */
   async bySlug(slug: string) {
-    const {
-      _avg: { rating },
-    } = await this.prisma.review.aggregate({
-      where: {
-        course: { slug },
+    const [
+      {
+        _avg: { rating },
       },
+      course,
+    ] = await this.prisma.$transaction([
+      this.prisma.review.aggregate({
+        where: {
+          course: { slug },
+        },
 
-      _avg: {
-        rating: true,
-      },
-    });
+        _avg: {
+          rating: true,
+        },
+      }),
+      this.prisma.course.findUnique({
+        where: {
+          slug,
+        },
 
-    const course = await this.prisma.course.findUnique({
-      where: {
-        slug,
-      },
+        select: courseReturnObjectFullest,
+      }),
+    ]);
 
-      select: courseReturnObjectFullest,
-    });
     if (!course) throw new NotFoundException('course not found');
 
     return { course, rating };
@@ -78,37 +94,72 @@ export class CourseService {
   }
 
   async getSimilar(id: number) {
-    const currentcourse = await this.byId(id);
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const currentCourse = await tx.course.findUnique({
+          where: { id },
+          select: courseReturnObjectFullest,
+        });
+        if (!currentCourse) throw new NotFoundException('Course not found');
 
-    if (!currentcourse)
-      throw new NotFoundException('Current course not found!');
+        const courses = await tx.course.findMany({
+          where: {
+            category: {
+              name: currentCourse.category.name,
+            },
+            NOT: {
+              id: currentCourse.id,
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          select: courseReturnObject,
+        });
+        const coursesWithRating = courses.map(async (course) => {
+          const { slug } = course;
+          const rating = await this.reviewService.getRatingByCourseSlug(slug);
+          return {
+            ...course,
+            rating,
+          };
+        });
 
-    const courses = await this.prisma.course.findMany({
-      where: {
-        category: {
-          name: currentcourse.category.name,
-        },
-        NOT: {
-          id: currentcourse.id,
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      select: courseReturnObject,
-    });
-
-    return courses;
+        const length = tx.course.count({
+          where: {
+            category: {
+              name: currentCourse.category.name,
+            },
+            NOT: {
+              id: currentCourse.id,
+            },
+          },
+        });
+        return {
+          courses: await Promise.all(coursesWithRating),
+          length,
+        };
+      });
+    } catch (error) {
+      return { error: error.message };
+    }
   }
 
+  /**
+   * GET all courses.
+   *
+   * @param {GetAllCoursesDto} dto
+   */
   async getAll(dto: GetAllCoursesDto = {}) {
     const { perPage, skip } = this.paginationService.getPagination(dto);
 
-    const filters = this.createFilters(dto);
+    const filters = this.filtersService.createFilters(dto);
 
     const courses = await this.prisma.course.findMany({
       where: filters,
-      orderBy: !!dto.sort ? this.getSortOption(dto.sort) : { id: 'desc' },
+      orderBy: !!dto.sort
+        ? this.filtersService.getSortOption(dto.sort)
+        : { id: 'desc' },
       skip,
       take: perPage,
       select: courseReturnObject,
@@ -116,18 +167,10 @@ export class CourseService {
 
     const coursesWithRating = courses.map(async (course) => {
       const { slug } = course;
-      const rating = await this.prisma.review.aggregate({
-        where: {
-          course: { slug },
-        },
-
-        _avg: {
-          rating: true,
-        },
-      });
+      const rating = await this.reviewService.getRatingByCourseSlug(slug);
       return {
         ...course,
-        rating: rating._avg.rating,
+        rating,
       };
     });
 
@@ -136,109 +179,6 @@ export class CourseService {
       length: await this.prisma.course.count({
         where: filters,
       }),
-    };
-  }
-
-  private createFilters(dto: GetAllCoursesDto): Prisma.CourseWhereInput {
-    const filters: Prisma.CourseWhereInput[] = [];
-    if (dto.searchTerm) filters.push(this.getSearchTermFilter(dto.searchTerm));
-
-    if (dto.ratings)
-      filters.push(
-        this.getRatingFilter(dto.ratings.split('|').map((rating) => +rating)),
-      );
-    if (dto.minPrice || dto.maxPrice)
-      filters.push(
-        this.getPriceFilter(
-          convertToNumber(dto.minPrice),
-          convertToNumber(dto.maxPrice),
-        ),
-      );
-    if (dto.categoryId) filters.push(this.getCategoryFilter(+dto.categoryId));
-
-    return filters.length ? { AND: filters } : {};
-  }
-
-  private getSortOption(
-    sort: EnumCourseSort,
-  ): Prisma.CourseOrderByWithRelationInput[] {
-    switch (sort) {
-      case EnumCourseSort.LOW_PRICE:
-        return [{ price: 'asc' }];
-      case EnumCourseSort.HIGH_PRICE:
-        return [{ price: 'desc' }];
-      case EnumCourseSort.OLDEST:
-        return [{ createdAt: 'asc' }];
-      default:
-        return [{ createdAt: 'desc' }];
-    }
-  }
-
-  private getSearchTermFilter(searchTerm: string): Prisma.CourseWhereInput {
-    return {
-      OR: [
-        {
-          category: {
-            name: {
-              contains: searchTerm,
-              mode: 'insensitive',
-            },
-          },
-        },
-        {
-          title: {
-            contains: searchTerm,
-            mode: 'insensitive',
-          },
-        },
-        {
-          description: {
-            contains: searchTerm,
-            mode: 'insensitive',
-          },
-        },
-      ],
-    };
-  }
-
-  private getRatingFilter(ratings: number[]): Prisma.CourseWhereInput {
-    return {
-      reviews: {
-        some: {
-          rating: {
-            in: ratings,
-          },
-        },
-      },
-    };
-  }
-
-  private getPriceFilter(
-    minPrice?: number,
-    maxPrice?: number,
-  ): Prisma.CourseWhereInput {
-    let priceFilter: Prisma.IntFilter | undefined = undefined;
-
-    if (minPrice) {
-      priceFilter = {
-        ...priceFilter,
-        gte: minPrice,
-      };
-    }
-    if (maxPrice) {
-      priceFilter = {
-        ...priceFilter,
-        lte: maxPrice,
-      };
-    }
-    return {
-      price: priceFilter,
-    };
-  }
-
-  private getCategoryFilter(categoryId: number): Prisma.CourseWhereInput {
-    return {
-      categoryId,
     };
   }
 
@@ -312,6 +252,8 @@ export class CourseService {
       },
     });
   }
+
+  //--------------------Delete------------------------//
 
   async delete(id: number) {
     return this.prisma.course.delete({

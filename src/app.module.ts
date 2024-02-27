@@ -12,6 +12,7 @@ import { VideoModule } from './video/video.module';
 import { ReviewModule } from './review/review.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { FiltersService } from './filters/filters.service';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { AppService } from './app.service';
     ReviewModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, FiltersService],
   // providers: [PrismaService],
 })
 export class AppModule {}

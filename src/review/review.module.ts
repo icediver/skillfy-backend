@@ -7,5 +7,6 @@ import { PaginationService } from 'src/pagination/pagination.service';
 @Module({
   controllers: [ReviewController],
   providers: [ReviewService, PrismaService, PaginationService],
+  exports: [ReviewService],
 })
 export class ReviewModule {}

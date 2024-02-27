@@ -3,6 +3,8 @@ import {
   Controller,
   Get,
   HttpCode,
+  Param,
+  Patch,
   Put,
   UsePipes,
   ValidationPipe,
@@ -13,6 +15,7 @@ import { CurrentUser } from 'src/auth/decorators/user.decorator';
 import { UserDto } from './dto/user.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
+import { CartDto } from './dto/cart.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -50,5 +53,33 @@ export class UserController {
   @Put('profile')
   async updateProfile(@CurrentUser('id') id: number, @Body() dto: UserDto) {
     return this.userService.updateProfile(id, dto);
+  }
+
+  @HttpCode(200)
+  @Auth()
+  @Patch('favorites/:courseId')
+  async toggleFavorite(
+    @CurrentUser('id') id: number,
+    @Param('courseId') courseId: string,
+  ) {
+    return this.userService.toggleFavorite(+id, +courseId);
+  }
+
+  @HttpCode(200)
+  @Auth()
+  @Patch('buy-course/:courseId')
+  async buyCourse(
+    @CurrentUser('id') userId: number,
+    @Param('courseId') courseId: string,
+  ) {
+    return this.userService.addToPurchases(+userId, +courseId);
+  }
+
+  @UsePipes(new ValidationPipe())
+  @HttpCode(200)
+  @Auth()
+  @Patch('buy-courses')
+  async buyCourses(@CurrentUser('id') userId: number, @Body() dto: CartDto) {
+    return this.userService.addCoursesToPurchases(+userId, dto);
   }
 }

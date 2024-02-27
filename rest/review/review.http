@@ -1,0 +1,13 @@
+###-Create review
+POST {{URL}}/leave/1
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+< {{PAYLOAD}}
+###--Get All reviews
+GET {{URL}}
+Accept: application/json
+
+###--Get By course Id
+GET {{URL}}/by-course/1
+Accept: application/json
