@@ -16,5 +16,5 @@ when a user leaves the organization. That user’s seat can then be re-assigned 
   "lessons": ["1.mp4", "2.mp4"],
   "teacherId": 1,
 
-  "categoryId": 2
+  "categoryId": 12
 }

@@ -23,7 +23,7 @@ Accept: application/json
 
 
 ###---Update course
-PUT {{URL}}/7
+PUT {{URL}}/1
 Content-Type: application/json
 Authorization: Bearer {{TOKEN}}
 

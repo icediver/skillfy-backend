@@ -2,7 +2,7 @@
 POST {{URL}}/auth/login
 Content-Type: application/json
 
-< {{PAYLOAD}}
+< {{PAYLOAD_USER}}
 
 ###--Register
 

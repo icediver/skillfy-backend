@@ -17,7 +17,7 @@ Accept: application/json
 
 
 ###---Update category
-PUT {{URL}}/categories/6
+PUT {{URL}}/categories/1
 Content-Type: application/json
 Authorization: Bearer {{TOKEN}}
 
