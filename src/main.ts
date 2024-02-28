@@ -15,7 +15,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.enableCors({
     // origin: ['http://localhost:3000'],
-    origin: ['https://skillfy-frontend.vercel.app'],
+    origin: ['https://skillfy-frontend.vercel.app', 'http://localhost:3000'],
     credentials: true,
     exposedHeaders: 'set-cookie',
   });
