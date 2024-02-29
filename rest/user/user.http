@@ -46,6 +46,8 @@ Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{TOKEN}}
 
+
+
 ### -- Toggle Favorite
 
 PATCH {{URL}}/users/favorites/2

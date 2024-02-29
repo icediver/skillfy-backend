@@ -159,7 +159,7 @@ export class CourseService {
       where: filters,
       orderBy: !!dto.sort
         ? this.filtersService.getSortOption(dto.sort)
-        : { id: 'desc' },
+        : { id: 'asc' },
       skip,
       take: perPage,
       select: courseReturnObject,
